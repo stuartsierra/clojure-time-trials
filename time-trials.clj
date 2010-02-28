@@ -29,18 +29,68 @@
                  (.length s)
                  (.length #^String s)))
 
-(compare-times "Using primitive ops in loops" 100000
+(compare-times "Using transient vectors" 1000
+               (loop [r [], i 0]
+                 (if (= i 1000)
+                   r
+                   (recur (conj r i) (inc i))))
+               (loop [r (transient []), i 0]
+                 (if (= i 1000)
+                   (persistent! r)
+                   (recur (conj! r i) (inc i)))))
+
+(compare-times "Using transient maps" 1000
+               (loop [r {}, i 0]
+                 (if (= i 100)
+                   r
+                   (recur (assoc r i i) (inc i))))
+               (loop [r (transient {}), i 0]
+                 (if (= i 100)
+                   (persistent! r)
+                   (recur (assoc! r i i) (inc i)))))
+
+(compare-times "Using loop primitives" 100000
                (loop [sum 0, x 1]
+                 (if (= x 100)
+                   sum
+                   (recur (+ sum x) (inc x))))
+               (loop [sum (int 0), x (int 1)]
+                 (if (= x 100)
+                   sum
+                   (recur (+ sum x) (inc x)))))
+
+(compare-times "Using == in primitive loops" 100000
+               (loop [sum (int 0), x (int 1)]
                  (if (= x 100)
                    sum
                    (recur (+ sum x) (inc x))))
                (loop [sum (int 0), x (int 1)]
                  (if (== x 100)
                    sum
+                   (recur (+ sum x) (inc x)))))
+
+(compare-times "Using unchecked ops in primitive loops" 100000
+               (loop [sum (int 0), x (int 1)]
+                 (if (= x 100)
+                   sum
+                   (recur (+ sum x) (inc x))))
+               (loop [sum (int 0), x (int 1)]
+                 (if (= x 100)
+                   sum
                    (recur (unchecked-add sum x) (unchecked-inc x)))))
-               
+
 (compare-times "Using binary arithmetic ops" 1000000
                (+ 2 4 6 8) (+ 2 (+ 4 (+ 6 8))))
+
+(let [ary (int-array (range 100))]
+  (compare-times "Using amap" 10000
+                 (dorun (map inc ary))
+                 (dorun (amap ary i ret (inc (aget ary i))))))
+
+(let [ary (int-array (range 100))]
+  (compare-times "Using areduce" 10000
+                 (reduce + ary)
+                 (areduce ary i ret 0 (+ ret (aget ary i)))))
 
 (let [v [1 2 3]]
   (compare-times "Avoiding destructuring" 1000000
