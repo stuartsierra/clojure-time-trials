@@ -22,6 +22,13 @@
                 "AFTER" ~description)
        (timetest ~n ~body2)))
 
+(defmacro version-gte [major minor & body]
+  (if (or (> (:major *clojure-version*) major)
+          (and (= major (:major *clojure-version*))
+               (> (:minor *clojure-version*) minor)))
+    `(do ~@body)
+    nil))
+
 (println "\n\n##### Clojure" (clojure-version-string))
 
 (let [s (identity "Hello, World!")]
@@ -29,25 +36,27 @@
                  (.length s)
                  (.length #^String s)))
 
-(compare-times "Using transient vectors" 1000
-               (loop [r [], i 0]
-                 (if (= i 1000)
-                   r
-                   (recur (conj r i) (inc i))))
-               (loop [r (transient []), i 0]
-                 (if (= i 1000)
-                   (persistent! r)
-                   (recur (conj! r i) (inc i)))))
+(version-gte 1 1
+  (compare-times "Using transient vectors" 1000
+                 (loop [r [], i 0]
+                   (if (= i 1000)
+                     r
+                     (recur (conj r i) (inc i))))
+                 (loop [r (transient []), i 0]
+                   (if (= i 1000)
+                     (persistent! r)
+                     (recur (conj! r i) (inc i))))))
 
-(compare-times "Using transient maps" 1000
-               (loop [r {}, i 0]
-                 (if (= i 100)
-                   r
-                   (recur (assoc r i i) (inc i))))
-               (loop [r (transient {}), i 0]
-                 (if (= i 100)
-                   (persistent! r)
-                   (recur (assoc! r i i) (inc i)))))
+(version-gte 1 1
+  (compare-times "Using transient maps" 1000
+                 (loop [r {}, i 0]
+                   (if (= i 100)
+                     r
+                     (recur (assoc r i i) (inc i))))
+                 (loop [r (transient {}), i 0]
+                   (if (= i 100)
+                     (persistent! r)
+                     (recur (assoc! r i i) (inc i))))))
 
 (compare-times "Using loop primitives" 100000
                (loop [sum 0, x 1]
