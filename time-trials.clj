@@ -125,3 +125,18 @@
   (compare-times "Avoiding Var lookups" 1000000
                  (* *value* *value*)
                  (* value value)))
+
+(defn square [x] (* x x))
+
+(definline square-inline [x] `(let [z# ~x] (* z# z#)))
+
+(compare-times "Using definline" 10000
+               (loop [i 1]
+                 (when (< i 100)
+                   (square i)
+                   (recur (inc i))))
+               (loop [i 1]
+                 (when (< i 100)
+                   (square-inline i)
+                   (recur (inc i)))))
+
