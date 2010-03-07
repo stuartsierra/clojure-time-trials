@@ -95,6 +95,13 @@
 (compare-times "Using binary arithmetic ops" 1000000
                (+ 2 4 6 8) (+ 2 (+ 4 (+ 6 8))))
 
+(let [a (int 2)
+      b (int 4)
+      c (int 6)
+      d (int 8)]
+  (compare-times "Using primitive binary arithmetic ops" 1000000
+                 (+ a b c d) (+ a (+ b (+ c d)))))
+
 (let [ary (int-array (range 100))]
   (compare-times "Using amap" 10000
                  (dorun (map inc ary))
