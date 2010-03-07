@@ -69,24 +69,28 @@
                    (recur (+ sum x) (inc x)))))
 
 (compare-times "Using == in primitive loops" 100000
-               (loop [sum (int 0), x (int 1)]
-                 (if (= x 100)
-                   sum
-                   (recur (+ sum x) (inc x))))
-               (loop [sum (int 0), x (int 1)]
-                 (if (== x (int 100))
-                   sum
-                   (recur (+ sum x) (inc x)))))
+               (let [max (int 100)]
+                 (loop [sum (int 0), x (int 1)]
+                   (if (= x max)
+                     sum
+                     (recur (+ sum x) (inc x)))))
+               (let [max (int 100)]
+                 (loop [sum (int 0), x (int 1)]
+                   (if (== x max)
+                     sum
+                     (recur (+ sum x) (inc x))))))
 
 (compare-times "Using unchecked ops in primitive loops" 100000
-               (loop [sum (int 0), x (int 1)]
-                 (if (== x (int 100))
-                   sum
-                   (recur (+ sum x) (inc x))))
-               (loop [sum (int 0), x (int 1)]
-                 (if (== x (int 100))
-                   sum
-                   (recur (unchecked-add sum x) (unchecked-inc x)))))
+               (let [max (int 100)]
+                 (loop [sum (int 0), x (int 1)]
+                   (if (== x max)
+                     sum
+                     (recur (+ sum x) (inc x)))))
+               (let [max (int 100)]
+                 (loop [sum (int 0), x (int 1)]
+                   (if (== x max)
+                     sum
+                     (recur (unchecked-add sum x) (unchecked-inc x))))))
 
 (compare-times "Using binary arithmetic ops" 1000000
                (+ 2 4 6 8) (+ 2 (+ 4 (+ 6 8))))
