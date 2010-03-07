@@ -70,7 +70,7 @@
 
 (compare-times "Using == in primitive loops" 100000
                (loop [sum (int 0), x (int 1)]
-                 (if (= x (int 100))
+                 (if (= x 100)
                    sum
                    (recur (+ sum x) (inc x))))
                (loop [sum (int 0), x (int 1)]
